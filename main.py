@@ -27,7 +27,7 @@ except ImportError:
 # ─────────────────────────────────────────
 #  CAMINHOS
 # ─────────────────────────────────────────
-BASE_DIR        = os.path.abspath(os.path.dirname(__file__ ))
+BASE_DIR        = os.path.abspath(os.path.dirname(__file__))
 CONFIG_PATH     = os.path.join(BASE_DIR, "config.json")
 OUTPUT_DIR      = os.path.join(BASE_DIR, "clips")
 BUFFER_DIR      = os.path.join(BASE_DIR, "buffer")
@@ -535,9 +535,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"error": "Arquivo nao encontrado"}, 404)
 
 def run_server():
-    print(f"[SERVER] Rodando em http://{get_local_ip( )}:{SERVER_PORT}")
-    httpd = ThreadingHTTPServer(("0.0.0.0", SERVER_PORT ), Handler)
-    httpd.serve_forever( )
+    print(f"[SERVER] Rodando em http://{get_local_ip()}:{SERVER_PORT}")
+    httpd = ThreadingHTTPServer(("0.0.0.0", SERVER_PORT), Handler)
+    httpd.serve_forever()
 
 def button_loop():
     """Loop para processar o botão a cada 10ms"""
