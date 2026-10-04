@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Apertou Gravou — Arena Jaguar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --lime:#C8FF00; --orange:#FF4500; --bg:#06090C;
+  --surface:#0D1219; --card:#111820; --border:#1C2733;
+  --muted:#3A4A5C; --text:#E8EDF2; --sub:#6B7E90;
+  --font-d:'Bebas Neue',sans-serif;
+  --font-b:'Rajdhani',sans-serif;
+  --radius:14px;
+}
+html,body { background:var(--bg); color:var(--text); font-family:var(--font-b); min-height:100dvh; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px); pointer-events:none; z-index:9999; }
+
+/* ── HEADER ── */
+header { display:flex; align-items:center; justify-content:space-between; padding:.75rem 1.25rem; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; gap:1rem; }
+.logo { font-family:var(--font-d); font-size:1.5rem; letter-spacing:2px; color:var(--lime); line-height:1; }
+.logo span { color:var(--sub); font-size:.7rem; display:block; letter-spacing:3px; margin-top:-2px; }
+.header-right { display:flex; align-items:center; gap:.75rem; }
+.status-row { display:flex; align-items:center; gap:.5rem; font-size:.78rem; font-weight:600; color:var(--sub); }
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--muted); flex-shrink:0; transition:background .3s; }
+.status-dot.online  { background:var(--lime); box-shadow:0 0 8px var(--lime); }
+.status-dot.offline { background:var(--orange); }
+#clock { font-family:var(--font-d); font-size:1.1rem; color:var(--sub); letter-spacing:2px; }
+
+/* ── LAYOUT ── */
+main { display:flex; flex-direction:column; gap:1rem; padding:1rem; max-width:700px; margin:0 auto; }
+
+/* ── BOTÃO ── */
+.record-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; }
+#saveBtn {
+  width:100%; padding:2rem 1rem; border:none; border-radius:12px;
+  background:var(--lime); color:#000;
+  font-family:var(--font-d); font-size:2.4rem; letter-spacing:4px;
+  cursor:pointer; transition:transform .15s, box-shadow .15s;
+  box-shadow:0 0 40px rgba(200,255,0,.25), 0 4px 20px rgba(0,0,0,.5);
+}
+#saveBtn:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 0 60px rgba(200,255,0,.4); }
+#saveBtn:not(:disabled):active { transform:scale(.98); }
+#saveBtn:disabled { background:var(--muted); color:var(--sub); cursor:not-allowed; box-shadow:none; }
+#saveBtn.recording { background:var(--orange); animation:btn-pulse 1s ease infinite; box-shadow:0 0 40px rgba(255,69,0,.4); }
+@keyframes btn-pulse { 0%,100%{box-shadow:0 0 40px rgba(255,69,0,.4)} 50%{box-shadow:0 0 80px rgba(255,69,0,.7)} }
+
+/* ── STATS ── */
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin-top:1rem; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:.75rem .5rem; text-align:center; }
+.stat-label { font-size:.58rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--sub); display:block; margin-bottom:.25rem; }
+.stat-value { font-family:var(--font-d); font-size:1.35rem; color:var(--lime); }
+
+/* ── CLIPS ── */
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:.75rem; }
+.section-title { font-family:var(--font-d); font-size:1.1rem; letter-spacing:3px; color:var(--sub); }
+.clip-count { background:rgba(200,255,0,.1); border:1px solid rgba(200,255,0,.2); color:var(--lime); font-family:var(--font-d); font-size:.85rem; padding:.2rem .7rem; border-radius:100px; }
+.clips-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:.75rem; }
+
+.clip-card { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--lime); border-radius:var(--radius); overflow:hidden; transition:transform .2s, border-color .2s; animation:slide-in .3s ease both; }
+.clip-card:hover { transform:translateY(-2px); border-color:rgba(200,255,0,.5); }
+@keyframes slide-in { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.clip-thumb { width:100%; aspect-ratio:16/9; background:linear-gradient(135deg,#0d1a0d,#0a0f1a); display:flex; align-items:center; justify-content:center; position:relative; }
+.clip-time-big { font-family:var(--font-d); font-size:2.5rem; color:rgba(200,255,0,.2); letter-spacing:4px; }
+.clip-new-badge { position:absolute; top:.5rem; left:.5rem; background:var(--lime); color:#000; font-family:var(--font-d); font-size:.68rem; letter-spacing:1px; padding:.15rem .5rem; border-radius:4px; }
+
+.clip-body { padding:.85rem 1rem; }
+.clip-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:.4rem; }
+.clip-name { font-family:var(--font-d); font-size:1.05rem; letter-spacing:1px; }
+.clip-size { font-size:.68rem; color:var(--sub); }
+.clip-date { font-size:.7rem; color:var(--muted); margin-bottom:.7rem; }
+.clip-actions { display:grid; grid-template-columns:1fr 1fr; gap:.45rem; }
+.btn { display:flex; align-items:center; justify-content:center; gap:.35rem; padding:.52rem; border-radius:8px; font-family:var(--font-d); font-size:.82rem; letter-spacing:1px; text-decoration:none; border:none; cursor:pointer; transition:opacity .15s, transform .1s; }
+.btn:active { transform:scale(.96); }
+.btn-watch    { background:rgba(255,255,255,.07); border:1px solid var(--border); color:var(--text); }
+.btn-watch:hover { background:rgba(255,255,255,.12); }
+.btn-whatsapp { background:#128C7E; color:#fff; }
+.btn-whatsapp:hover { background:#075E54; }
+.btn-delete   { background:rgba(255,60,60,.12); border:1px solid rgba(255,60,60,.25); color:#ff6060; grid-column:span 2; }
+.btn-delete:hover { background:rgba(255,60,60,.2); }
+
+.empty { grid-column:1/-1; padding:3rem 1rem; text-align:center; color:var(--muted); font-family:var(--font-d); font-size:1rem; letter-spacing:2px; }
+
+/* ── TOAST ── */
+#toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:.65rem 1.5rem; font-family:var(--font-d); font-size:.88rem; letter-spacing:2px; color:var(--lime); transition:transform .3s cubic-bezier(.34,1.56,.64,1); z-index:9998; white-space:nowrap; box-shadow:0 4px 30px rgba(0,0,0,.5); }
+#toast.show { transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">APERTOU GRAVOU<span>ARENA JAGUAR</span></div>
+  <div class="header-right">
+    <div class="status-row">
+      <div class="status-dot" id="api-dot"></div>
+      <span id="api-label">CONECTANDO...</span>
+    </div>
+    <div id="clock">--:--</div>
+  </div>
+</header>
+
+<main>
+  <div class="record-card">
+    <button id="saveBtn" onclick="gravar()">&#9654; GRAVAR LANCE</button>
+    <div class="stats">
+      <div class="stat"><span class="stat-label">STATUS</span><span class="stat-value" id="st-api">--</span></div>
+      <div class="stat"><span class="stat-label">BUFFER</span><span class="stat-value" id="st-buf">--</span></div>
+      <div class="stat"><span class="stat-label">CLIPS</span><span class="stat-value" id="st-clips">0</span></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-header">
+      <div class="section-title">ULTIMOS REPLAYS</div>
+      <div class="clip-count" id="clip-count">0</div>
+    </div>
+    <div class="clips-grid" id="clips-grid">
+      <div class="empty">Aguardando replays...</div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const FALLBACK_API   = "https://conexao.semdominio.online";
+const FALLBACK_MEDIA = "https://media.semdominio.online";
+const ARENA_NAME     = "Arena Jaguar";
+let API=FALLBACK_API, MEDIA_URL=FALLBACK_MEDIA;
+let knownClips=new Set(), allClips=[];
+
+// ── CLOCK ──
+function tickClock(){
+  const n=new Date();
+  document.getElementById("clock").textContent=
+    n.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+}
+tickClock(); setInterval(tickClock,1000);
+
+// ── TOAST ──
+function toast(msg,dur=3000){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),dur);
+}
+
+// ── CONFIG ──
+async function loadConfig(){
+  try{
+    const r=await fetch(`${window.location.origin}/api/config`,{signal:AbortSignal.timeout(3000)});
+    if(r.ok){
+      const c=await r.json();
+      if(c.public_api) API      = c.public_api;
+      if(c.media_url)  MEDIA_URL= c.media_url;
+    }
+  }catch(_){}
+}
+
+// ── STATUS ──
+async function loadStatus(){
+  const dot=document.getElementById("api-dot");
+  const lbl=document.getElementById("api-label");
+  try{
+    const r=await fetch(`${API}/api/status`,{signal:AbortSignal.timeout(4000)});
+    if(r.ok){
+      const d=await r.json();
+      dot.className="status-dot online"; lbl.textContent="ONLINE";
+      document.getElementById("st-api").textContent="OK";
+      document.getElementById("st-buf").textContent=(d.buffer_seconds||0)+"s";
+      document.getElementById("st-clips").textContent=d.clips_saved||0;
+      return;
+    }
+  }catch(_){}
+  dot.className="status-dot offline"; lbl.textContent="OFFLINE";
+  document.getElementById("st-api").textContent="ERRO";
+}
+
+// ── WHATSAPP MENSAGEM RICA ──
+function buildWhatsappMsg(item){
+  // Formata data: "10/08/2026 20:47:21" → dia e hora separados
+  const partes = (item.created_at || "").split(" ");
+  const data   = partes[0] || "";
+  const hora   = item.time  || partes[1] || "";
+  const size   = item.size_mb ? `${item.size_mb} MB` : "";
+
+  const linhas = [
+    `🎬 *REPLAY — ${ARENA_NAME.toUpperCase()}*`,
+    `⏱ Lance: ${hora}${data ? " • " + data : ""}`,
+    size ? `📹 Duração: 30s • ${size}` : `📹 Duração: 30s`,
+    ``,
+    `👇 Assista agora:`,
+    item.url,
+    ``,
+    `_Gerado por Apertou Gravou_ ⚽`,
+  ];
+
+  return encodeURIComponent(linhas.join("\n"));
+}
+
+// ── CLIPS ──
+function renderClips(){
+  const grid=document.getElementById("clips-grid");
+  document.getElementById("clip-count").textContent=allClips.length;
+  document.getElementById("st-clips").textContent=allClips.length;
+
+  if(!allClips.length){
+    grid.innerHTML='<div class="empty">Nenhum replay ainda. Grave o primeiro lance!</div>';
+    return;
+  }
+
+  grid.innerHTML=allClips.map((item,i)=>{
+    const isNew=!knownClips.has(item.name); knownClips.add(item.name);
+    const waMsg=buildWhatsappMsg(item);
+    return `<div class="clip-card" style="animation-delay:${Math.min(i,8)*.05}s">
+      <div class="clip-thumb">
+        ${isNew&&i<3?'<span class="clip-new-badge">NOVO</span>':''}
+        <div class="clip-time-big">${item.time?item.time.slice(0,5):'--'}</div>
+      </div>
+      <div class="clip-body">
+        <div class="clip-meta">
+          <div class="clip-name">LANCE ${item.time||'--'}</div>
+          <div class="clip-size">${item.size_mb?item.size_mb+' MB':''}</div>
+        </div>
+        <div class="clip-date">${item.created_at||''}</div>
+        <div class="clip-actions">
+          <a href="${item.url}" target="_blank" class="btn btn-watch">&#9654; ASSISTIR</a>
+          <a href="https://wa.me/?text=${waMsg}" target="_blank" class="btn btn-whatsapp">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WHATSAPP
+          </a>
+          <button onclick="deleteClip('${item.name}')" class="btn btn-delete">🗑 EXCLUIR</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function loadClips(){
+  try{
+    const r=await fetch(`${MEDIA_URL}/clips.json?t=${Date.now()}`);
+    if(!r.ok) throw new Error();
+    allClips=await r.json();
+    renderClips();
+  }catch(_){
+    document.getElementById("clips-grid").innerHTML=
+      '<div class="empty">Aguardando conexao com a nuvem...</div>';
+  }
+}
+
+// ── EXCLUIR ──
+async function deleteClip(name){
+  if(!confirm(`Excluir o clipe ${name}?`)) return;
+  toast("EXCLUINDO...");
+  try{
+    const r=await fetch(`${API}/api/clips/${name}`,{method:"DELETE"});
+    const j=await r.json();
+    if(j.success){ toast("CLIPE REMOVIDO"); loadClips(); }
+    else toast("ERRO AO EXCLUIR");
+  }catch(_){ toast("ERRO DE CONEXAO"); }
+}
+
+// ── GRAVAR ──
+async function gravar(){
+  const btn=document.getElementById("saveBtn");
+  btn.disabled=true; btn.classList.add("recording"); btn.textContent="GRAVANDO...";
+  toast("PROCESSANDO LANCE...",90000);
+  try{
+    const r=await fetch(`${API}/api/trigger`,{method:"POST",signal:AbortSignal.timeout(120000)});
+    const j=await r.json();
+    if(j.success){ btn.textContent="LANCE SALVO!"; toast("LANCE SALVO!",4000); setTimeout(loadClips,7000); }
+    else{ btn.textContent="FALHOU"; toast("ERRO: "+(j.message||"tente novamente"),4000); }
+  }catch(_){ btn.textContent="ERRO"; toast("SEM CONEXAO COM A API",4000); }
+  btn.classList.remove("recording");
+  setTimeout(()=>{ btn.disabled=false; btn.textContent="\u25B6 GRAVAR LANCE"; },8000);
+}
+
+// ── INIT ──
+(async()=>{
+  await loadConfig();
+  loadStatus();
+  loadClips();
+  setInterval(loadStatus,6000);
+  setInterval(loadClips,20000);
+})();
+</script>
+</body>
+</html>
